@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GZL — место, где тебя ждут</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.cdnfonts.com/css/minecraft-rus" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+  <style>
+    :root{
+      --mc-0:#000000; --mc-1:#0000AA; --mc-2:#00AA00; --mc-3:#00AAAA;
+      --mc-4:#AA0000; --mc-5:#AA00AA; --mc-6:#FFAA00; --mc-7:#AAAAAA;
+      --mc-8:#555555; --mc-9:#5555FF; --mc-a:#55FF55; --mc-b:#55FFFF;
+      --mc-c:#FF5555; --mc-d:#FF55FF; --mc-e:#FFFF55; --mc-f:#FFFFFF;
+      --bg:#FFD1DC; --spot:#FF517B; --card:rgba(255,255,255,.88);
+      --text:#333; --muted:#666; --accent:#398119; --online:#398119;
+      --radius:16px; --shadow:0 8px 32px rgba(0,0,0,.12)
+    }
+    body.dark{
+      --bg:#1a1a1a; --spot:#ff3366; --card:rgba(30,30,30,.88);
+      --text:#e0e0e0; --muted:#aaa; --accent:#4caf50; --online:#4caf50;
+      --shadow:0 8px 32px rgba(0,0,0,.5)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body,button,input,select,textarea,h1,h2,h3,h4,h5,h6,a,small,span,div,p,li,td,th{
+      font-family:'Minecraft Rus',sans-serif;
+    }
+    body{
+      line-height:1.5;background:var(--bg);
+      background-image: radial-gradient(circle at 20% 30%, var(--spot) 0%, transparent 25%),
+                        radial-gradient(circle at 80% 70%, var(--spot) 0%, transparent 25%),
+                        radial-gradient(circle at 50% 50%, var(--spot) 0%, transparent 20%);
+      min-height:100vh;display:flex;flex-direction:column;color:var(--text);
+      transition:background .3s,color .3s;
+    }
+    header{position:relative;width:100%;display:flex;justify-content:center;padding:1.2rem 0 .6rem;z-index:1000;}
+    .logo-box{display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center;}
+    .logo-header{width:400px;height:150px;border-radius:20%;object-fit:cover;cursor:pointer;max-width:90vw;}
+    .logo-text h1{margin:0;font-size:1.4rem}
+    .logo-text small{font-size:.7rem;color:var(--muted);display:block;text-align:center}
+
+    .controls-fixed{
+      position:fixed;
+      top:1rem;
+      right:1rem;
+      z-index:1001;
+      display:flex;
+      gap:.5rem;
+    }
+    .ctrl-btn{
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:8px;
+      width:44px;
+      height:44px;
+      font-size:1.4rem;
+      line-height:1;
+      cursor:pointer;
+      box-shadow:var(--shadow);
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .dropdown-menu{position:fixed;top:calc(1rem + 44px + .5rem);right:1rem;z-index:1001;display:none;flex-direction:column;gap:.4rem;padding:.5rem 0;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);min-width:160px;}
+    .dropdown-menu.show{display:flex}
+    .dropdown-menu a{padding:.4rem 1rem;color:var(--text);text-decoration:none;font-weight:600;transition:background .2s;}
+    .dropdown-menu a:hover{background:rgba(0,0,0,.05);}
+
+    main{flex:1;width:100%;max-width:1000px;margin:2rem auto;padding:0 1rem;display:flex;flex-direction:column;gap:2.5rem;}
+    section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:2rem}
+    h2{margin-bottom:1rem;font-size:1.5rem}
+    .online-big{display:inline-flex;align-items:center;gap:.5rem;font-size:1.1rem;font-weight:600;color:var(--online);margin-bottom:1.5rem}
+    .online-dot-big{width:12px;height:12px;background:var(--online);border-radius:50%;animation:pulse 1.5s infinite}
+    @keyframes pulse{50%{opacity:.4}}
+    .play-buttons-center{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}
+    .play-btn{background:var(--accent);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:8px;font-size:1rem;cursor:pointer;transition:background .2s}
+    .play-btn:hover{background:#2a6010}
+    .gallery-slider{margin-top:1.5rem}
+    .gallery-slider img{width:100%;height:auto;object-fit:cover;border-radius:var(--radius);display:block}
+    .slick-arrow,.slick-dots{display:none !important}
+    .grid-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-top:1.5rem}
+    .priv-card{background:rgba(255,255,255,.95);border:2px solid transparent;border-radius:var(--radius);padding:1.5rem 1rem;text-align:center;transition:border-color .3s,transform .3s;display:flex;flex-direction:column;gap:.5rem}
+    body.dark .priv-card{background:rgba(255,255,255,.05)}
+    .priv-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+    .priv-card h3{font-size:1.3rem;margin-bottom:.5rem}
+    .price{font-size:1.1rem;font-weight:700;color:var(--accent)}
+    .buy-btn{margin-top:auto;background:var(--accent);color:#fff;border:none;padding:.6rem 0;border-radius:8px;font-size:1rem;cursor:pointer;transition:background .2s}
+    .buy-btn:hover{background:#2a6010}
+    .clan-card{display:flex;gap:1rem;background:rgba(255,255,255,.95);border-radius:var(--radius);padding:1rem;align-items:center;box-shadow:var(--shadow);margin-bottom:1rem}
+    body.dark .clan-card{background:rgba(255,255,255,.05)}
+    .clan-logo{width:64px;height:64px;border-radius:var(--radius);object-fit:cover}
+    .clan-info{flex:1}
+    .clan-info h3{margin:0 0 .25rem;font-size:1.1rem}
+    .clan-info p{margin:0 0 .25rem;font-size:.85rem;color:var(--muted)}
+    .clan-info strong{color:var(--text)}
+    .data-table{width:100%;border-collapse:collapse;margin-top:1rem;font-size:.9rem;background:rgba(255,255,255,.95);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    body.dark .data-table{background:rgba(255,255,255,.05)}
+    .data-table th,.data-table td{padding:.6rem .8rem;border-bottom:1px solid rgba(0,0,0,.08);text-align:center}
+    .data-table th{background:var(--accent);color:#fff;font-weight:600}
+    .data-table tr:nth-child(even){background:rgba(255,255,255,.6)} .data-table tr:hover{background:rgba(255,209,220,.25)}
+    body.dark .data-table tr:nth-child(even){background:rgba(255,255,255,.08)}
+    .ban-reason{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rank-badge{display:inline-block;padding:.2rem .5rem;border-radius:6px;font-size:.75rem;font-weight:600;color:#fff;background:var(--accent)}
+    .rules-list{margin-left:1.2rem;font-size:.9rem}
+    
+    footer{
+      text-align:center;
+      padding:1.5rem 1rem;
+      font-size:.8rem;
+      color:var(--muted);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.75rem;
+    }
+    .footer-controls{
+      display:flex;
+      gap:.5rem;
+    }
+    .footer-controls .ctrl-btn{
+      width:40px;
+      height:40px;
+      font-size:1.2rem;
+    }
+
+    .mode-card{background:rgba(255,255,255,.95);border-radius:var(--radius);padding:1rem;text-align:center;transition:transform .3s,border-color .3s;border:2px solid transparent}
+    body.dark .mode-card{background:rgba(255,255,255,.05)}
+    .mode-card:hover{transform:translateY(-4px);border-color:var(--accent)}
+    .mode-icon{font-size:2rem;margin-bottom:.5rem}
+    .screen{display:none}
+    .screen.active{display:block}
+    #cherry-container{position:fixed;inset:0;pointer-events:none;z-index:1}
+    .petal{position:absolute;background:#ffb7c5;box-shadow:1px 1px 0 rgba(0,0,0,.1);opacity:.8;pointer-events:none}
+
+    .prefix-gold{color:var(--mc-6)} 
+    .prefix-yellow{color:var(--mc-e)} 
+    .prefix-red{color:var(--mc-4)} 
+    .prefix-purple{color:var(--mc-5)}
+
+    main{min-height:101vh;}
+    @media (max-width:480px){
+      .logo-header{width:90vw;height:auto;max-height:120px;}
+      .play-btn{font-size:.9rem;padding:.6rem 1rem;}
+      .grid-cards{grid-template-columns:1fr;}
+      .data-table{font-size:.8rem;}
+      .data-table th,.data-table td{padding:.4rem .5rem;}
+      .clan-card{flex-direction:column;text-align:center;}
+      .clan-logo{margin:0 auto .5rem;}
+    }
+    .chart-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.5rem;margin-top:2.5rem;overflow:hidden;}
+    .chart-box iframe{width:100%;height:300px;border:0;border-radius:var(--radius);display:block;}
+    @media (max-width:480px){.chart-box{padding:1rem;}.chart-box iframe{height:220px;}}
+
+    @media (max-width:600px){
+      .data-table thead{display:none;}
+      .data-table,.data-table tbody,.data-table tr{display:block;width:100%;}
+      .data-table tr{margin-bottom:1rem;border-radius:var(--radius);box-shadow:var(--shadow);background:rgba(255,255,255,.95);}
+      body.dark .data-table tr{background:rgba(255,255,255,.05);}
+      .data-table td{display:flex;justify-content:space-between;padding:.5rem .75rem;font-size:.85rem;border-bottom:1px solid rgba(0,0,0,.05);}
+      .data-table td::before{content:attr(data-label);font-weight:600;color:var(--accent);}
+      .ban-reason{max-width:none;white-space:normal;}
+    }
+
+    /* ---------- новое оформление правил ---------- */
+    .rule-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin:1.5rem 0}
+    .rule-card{display:flex;align-items:center;gap:.75rem;background:rgba(255,255,255,.75);border-radius:var(--radius);padding:1rem;font-size:.9rem;box-shadow:var(--shadow)}
+    body.dark .rule-card{background:rgba(255,255,255,.05)}
+    .rule-ico{font-size:1.6rem}
+    .accordion{background:rgba(255,255,255,.75);border-radius:var(--radius);padding:1rem;margin-top:1.5rem;box-shadow:var(--shadow)}
+    body.dark .accordion{background:rgba(255,255,255,.05)}
+    .accordion details{background:transparent;border:none;padding:.3rem 0}
+    .accordion summary{font-weight:600;list-style:none;display:flex;align-items:center;gap:.5rem;cursor:pointer}
+    .accordion summary::-webkit-details-marker{display:none}
+    .accordion details[open] summary{margin-bottom:.4rem;color:var(--accent)}
+    .accordion p{margin:0 0 .5rem 2rem;font-size:.85rem}
+
+    /* ---------- документация ---------- */
+    .doc-row{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.75);border-radius:var(--radius);padding:1rem;margin-bottom:.75rem;box-shadow:var(--shadow)}
+    body.dark .doc-row{background:rgba(255,255,255,.05)}
+    .doc-name{font-weight:600;font-size:1rem}
+
+    /* ---------- магазин ---------- */
+    .shop-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-top:1.5rem}
+    .shop-card{background:rgba(255,255,255,.95);border:2px solid transparent;border-radius:var(--radius);padding:1.25rem 1rem;text-align:center;transition:border-color .3s,transform .3s;display:flex;flex-direction:column;gap:.5rem}
+    body.dark .shop-card{background:rgba(255,255,255,.05)}
+    .shop-card:hover{border-color:var(--accent);transform:translateY(-4px)}
+    .shop-card h4{font-size:1.1rem;margin-bottom:.25rem}
+    .shop-desc{font-size:.8rem;color:var(--muted);flex:1}
+    .shop-price{font-size:1rem;font-weight:700;color:var(--accent);margin:.5rem 0}
+    .shop-btn{background:var(--accent);color:#fff;border:none;padding:.5rem 1rem;border-radius:8px;font-size:.9rem;cursor:pointer;transition:background .2s}
+    .shop-btn:hover{background:#2a6010}
+
+    /* подсказка добавить на главный экран */
+    #add2home{
+      position:fixed;
+      bottom:1rem;left:50%;
+      transform:translateX(-50%);
+      background:var(--card);
+      color:var(--text);
+      padding:.75rem 1.25rem;
+      border-radius:12px;
+      box-shadow:0 4px 20px rgba(0,0,0,.25);
+      font-size:.9rem;
+      z-index:9999;
+      display:none;
+      align-items:center;
+      gap:.5rem;
+    }
+    #add2home button{
+      background:var(--accent);
+      color:#fff;
+      border:none;
+      padding:.4rem .8rem;
+      border-radius:6px;
+      cursor:pointer;
+      font-size:.8rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="controls-fixed">
+  <button id="menuToggle" class="ctrl-btn">☰</button>
+</div>
+
+<nav id="dropMenu" class="dropdown-menu">
+  <a href="#home">Главная</a>
+  <a href="#rules">Правила</a>
+  <a href="#clans">Кланы</a>
+  <a href="#shop">Магазин</a>
+  <a href="#events">Ивенты</a>
+  <a href="#forum">Форум</a>
+  <a href="#docs">Документация</a>
+  <a href="#vote">Голосование</a>
+  <a href="#contacts">Контакты</a>
+</nav>
+
+<header>
+  <div class="logo-box">
+    <img src="screen/logo.webp" alt="Logo" class="logo-header" id="logo">
+    <div class="logo-text">
+      <h1>Место возможностей</h1>
+      <small>место, где тебя ждут</small>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ГЛАВНАЯ -->
+  <section id="home" class="screen active">
+    <h2>Добро пожаловать!</h2>
+    <p>Это дружный проект с вечным миром, уникальными режимами и активным комьюнити. Без вайпов, без вип-абуз, только честная игра.</p>
+    <div class="online-big"><span class="online-dot-big"></span>Онлайн: <span id="online">-</span> / 300</div>
+    <div class="info"><span>IP сервера:</span><br><strong>play.guzlik.com</strong></div>
+    <div class="play-buttons-center">
+      <button class="play-btn" onclick="playJava()">Играть | Java 1.21.10</button>
+      <button class="play-btn" onclick="playBedrock()">Играть | Bedrock 1.21.130</button>
+    </div>
+    <h2 style="margin-top:2.5rem">Скриншоты сервера</h2>
+    <div class="gallery-slider">
+      <div><img src="screen/1screen.webp" alt="Скрин 1"></div>
+      <div><img src="screen/2screen.webp" alt="Скрин 2"></div>
+      <div><img src="screen/3screen.webp" alt="Скрин 3"></div>
+      <div><img src="screen/4screen.webp" alt="Скрин 4"></div>
+    </div>
+    <div class="chart-box">
+      <h3 style="margin-bottom:1rem;">Статистика онлайна</h3>
+      <iframe src="https://minecraftrating.ru/server_chart/384034/"></iframe>
+    </div>
+  </section>
+
+  <!-- ПРАВИЛА -->
+  <section id="rules" class="screen">
+    <h2>Правила</h2>
+    <div class="rule-cards">
+      <div class="rule-card"><span class="rule-ico">⚔️</span><div>PvP только по взаимному согласию</div></div>
+      <div class="rule-card"><span class="rule-ico">🧨</span><div>Читы, X-Ray и баги — моментальный бан</div></div>
+      <div class="rule-card"><span class="rule-ico">🏗️</span><div>Грифинг запрещён: не ломай чужое</div></div>
+      <div class="rule-card"><span class="rule-ico">🔐</span><div>Не проникай в чужие приваты</div></div>
+      <div class="rule-card"><span class="rule-ico">🗺️</span><div>Не раскрывай чужие координаты</div></div>
+      <div class="rule-card"><span class="rule-ico">💬</span><div>Без токсичности, спама и оскорблений</div></div>
+      <div class="rule-card"><span class="rule-ico">🧙‍♂️</span><div>Не выдавай себя за админов</div></div>
+      <div class="rule-card"><span class="rule-ico">🎉</span><div>Играй честно и получай удовольствие!</div></div>
+    </div>
+    <div class="accordion">
+      <details><summary>1. ⚔️ PvP только по взаимному согласию</summary><p>Убийство игроков без их согласия запрещено. PvP разрешено только по взаимному согласию.</p></details>
+      <details><summary>2. 🧨 Читы, баги и сторонние программы</summary><p>Запрещено использовать читы, баги, X-Ray, сторонние программы и дюпы.</p></details>
+      <details><summary>3. 🏗️ Грифинг</summary><p>Ломать, портить, поджигать, взрывать или воровать чужие постройки и вещи запрещено.</p></details>
+      <details><summary>4. 🔐 Приваты и территории</summary><p>Не стройтесь вплотную к чужим приватам и не заходите на них без разрешения владельца.</p></details>
+      <details><summary>5. 🗺️ Координаты и базы</summary><p>Запрещено раскрывать чужие координаты без согласия владельца.</p></details>
+      <details><summary>6. 💬 Чат и поведение</summary><p>Оскорбления, токсичность, спам, политика, религия — под запретом. Будь дружелюбен.</p></details>
+      <details><summary>7. 🧙‍♂️ Администрация</summary><p>Запрещено выдавать себя за администрацию, спорь через тикеты/группу.</p></details>
+      <details><summary>8. 🧱 Общие нормы</summary><p>Не мешай ивентам, не кради со склада, не злоупотребляй багами, не строй в Энде столбы без доступа.</p></details>
+      <details><summary>9. 🎯 Финальное правило</summary><p>Играй честно, уважай других, получай удовольствие. Незнание правил не освобождает от ответственности.</p></details>
+    </div>
+    <p class="footer">Нарушение = бан без предупреждения. Полный текст правил в Telegram-чате.</p>
+  </section>
+
+  <!-- КЛАНЫ -->
+  <section id="clans" class="screen">
+    <h2>Кланы</h2>
+    <div class="clan-card">
+      <img src="screen/logoA.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <h3>Пылающий Феникс</h3>
+        <p>Дружный PvE-клан, совместные постройки и защита от гриферов.</p>
+        <p>Участников: <strong>11/20</strong> | Баланс: <strong>1 000 000 ₽</strong></p>
+      </div>
+      <button class="play-btn" onclick="showScreen('clan1')">Подробнее</button>
+    </div>
+    <div class="clan-card">
+      <img src="screen/logoV.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <h3>Valhalla</h3>
+        <p>Мы падшие, строим свой путь к Вальгалле — вместе строим, выживаем и создаём свой мир шаг за шагом.</p>
+        <p>Участников: <strong>4/20</strong> | Баланс: <strong>1 000 000 ₽</strong></p>
+      </div>
+      <button class="play-btn" onclick="showScreen('clan2')">Подробнее</button>
+    </div>
+    <div class="clan-card">
+      <img src="screen/logoC.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <h3>DragonSlayers</h3>
+        <p>Охотники на драконов и рейды, совместные боссы.</p>
+        <p>Участников: <strong>20/20</strong> | Баланс: <strong>1000 ₽</strong></p>
+      </div>
+      <button class="play-btn" onclick="showScreen('clan3')">Подробнее</button>
+    </div>
+  </section>
+
+  <!-- МАГАЗИН -->
+  <section id="shop" class="screen">
+    <h2>Магазин</h2>
+    <p>Кейсы, кристаллы, привилегии — всё для комфортной игры. Оплата в 1 клик!</p>
+    <div class="shop-grid">
+      <div class="shop-card">
+        <h4>Кейс «Старт»</h4>
+        <p class="shop-desc">Ресурсы, броня, инструменты — всё чтобы начать играть легко!</p>
+        <div class="shop-price">49 ₽</div>
+        <a class="shop-btn" href="ssh.html?product=case_start&amount=49">Купить</a>
+      </div>
+      <div class="shop-card">
+        <h4>Кейс «Богач»</h4>
+        <p class="shop-desc">Элитра, алмазы, зачарованные вещи и 100 000 игровых ₽.</p>
+        <div class="shop-price">149 ₽</div>
+        <a class="shop-btn" href="ssh.html?product=case_rich&amount=149">Купить</a>
+      </div>
+      <div class="shop-card">
+        <h4>Привилегия «Премиум»</h4>
+        <p class="shop-desc">Префикс, /home, /feed, повышенный дроп, отсутствие очереди.</p>
+        <div class="shop-price">199 ₽ / 30 дней</div>
+        <a class="shop-btn" href="ssh.html?product=premium&amount=199">Купить</a>
+      </div>
+      <div class="shop-card">
+        <h4>Кристаллы ×100</h4>
+        <p class="shop-desc">Премиальная валюта: покупайте уникальные товары в игре.</p>
+        <div class="shop-price">99 ₽</div>
+        <a class="shop-btn" href="ssh.html?product=crystals&amount=99">Купить</a>
+      </div>
+      <div class="shop-card">
+        <h4>Кейс «Боец»</h4>
+        <p class="shop-desc">Зачарованное оружие, щит, зелья и арбалет с ракетами.</p>
+        <div class="shop-price">129 ₽</div>
+        <a class="shop-btn" href="ssh.html?product=case_warrior&amount=129">Купить</a>
+      </div>
+      <div class="shop-card">
+        <h4>Кейс «Строитель»</h4>
+        <p class="shop-desc">Блоки, декор, схематика, WorldEdit на 1 час и 50 000 ₽.</p>
+        <div class="shop-price">89 ₽</div>
+        <a class="shop-btn" href="ssh.html?product=case_builder&amount=89">Купить</a>
+      </div>
+    </div>
+    <p style="margin-top:1.5rem;font-size:.8rem;color:var(--muted)">После оплаты товар выдаётся автоматически в течение 1 минуты. По вопросам — <a href="https://t.me/playguzlikcom" target="_blank">@guzliksupport</a></p>
+  </section>
+
+  <!-- СТРАНИЦЫ КЛАНОВ -->
+  <section id="clan1" class="screen">
+    <div class="play-buttons-center" style="margin-bottom:1rem">
+      <button class="play-btn" onclick="showScreen('clans')">← Назад</button>
+    </div>
+    <h2>Пылающий Феникс</h2>
+    <div class="clan-card">
+      <img src="screen/logoA.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <p><strong>Статус:</strong> Открыт для новичков</p>
+        <p><strong>Рейтинг:</strong> 1 250 ед.</p>
+        <p><strong>Цели:</strong> Совместные постройки, защита от гриферов, рейды на боссов</p>
+      </div>
+    </div>
+    <h3>Участники</h3>
+    <ul>
+      <li>FireLord (лидер)</li>
+      <li>PhoenixGirl</li>
+      <li>SkyBuilder</li>
+      <li>и 8 других...</li>
+    </ul>
+    <h3>Скриншоты</h3>
+    <div class="gallery-slider clan-gallery">
+      <div><img src="screen/clan1_1.webp" alt="Скрин 1"></div>
+      <div><img src="screen/clan1_2.webp" alt="Скрин 2"></div>
+    </div>
+  </section>
+
+  <section id="clan2" class="screen">
+    <div class="play-buttons-center" style="margin-bottom:1rem">
+      <button class="play-btn" onclick="showScreen('clans')">← Назад</button>
+    </div>
+    <h2>Valhalla</h2>
+    <div class="clan-card">
+      <img src="screen/logoV.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <p><strong>Статус:</strong> По запросу</p>
+        <p><strong>Рейтинг:</strong> — ед.</p>
+        <p><strong>Цели:</strong> Стать самым популярным и могущественным кланом</p>
+      </div>
+    </div>
+    <h3>Участники</h3>
+    <ul>
+      <li>wouji (лидер)</li>
+      <li>—</li>
+      <li>—</li>
+      <li>—</li>
+    </ul>
+    <h3>Скриншоты</h3>
+    <div class="gallery-slider clan-gallery">
+      <div><img src="screen/val1.webp" alt="Скрин 1"></div>
+      <div><img src="screen/val2.webp" alt="Скрин 2"></div>
+    </div>
+  </section>
+
+  <section id="clan3" class="screen">
+    <div class="play-buttons-center" style="margin-bottom:1rem">
+      <button class="play-btn" onclick="showScreen('clans')">← Назад</button>
+    </div>
+    <h2>DragonSlayers</h2>
+    <div class="clan-card">
+      <img src="screen/logoC.webp" alt="Логотип клана" class="clan-logo">
+      <div class="clan-info">
+        <p><strong>Статус:</strong> Закрыт, полный состав</p>
+        <p><strong>Рейтинг:</strong> 1 500 ед.</p>
+        <p><strong>Цели:</strong> Убийство дракона, рейды, PvE-лидерборд</p>
+      </div>
+    </div>
+    <h3>Участники</h3>
+    <ul>
+      <li>DragonMaster (лидер)</li>
+      <li>EnderGirl</li>
+      <li>BladeWarrior</li>
+      <li>и 17 других...</li>
+    </ul>
+    <h3>Скриншоты</h3>
+    <div class="gallery-slider clan-gallery">
+      <div><img src="screen/clan3_1.webp" alt="Скрин 1"></div>
+      <div><img src="screen/clan3_2.webp" alt="Скрин 2"></div>
+    </div>
+  </section>
+
+  <!-- ИВЕНТЫ -->
+  <section id="events" class="screen">
+    <h2>Ивенты и конкурсы</h2>
+    <div class="news-item"><div class="news-date">29.01.2026</div><p>Еженедельный ивент «BedWars Saturday» — призовой фонд 500 ₽</p></div>
+    <div class="news-item"><div class="news-date">05.02.2026</div><p>Конкурс скриншотов «Зимняя сказка» — лучший кадр получит 300 ₽ и префикс ❄️</p></div>
+    <p>Календарь ивентов и подробности в <a href="https://t.me/playguzlikcom" target="_blank">Telegram</a>.</p>
+  </section>
+
+  <!-- ФОРУМ -->
+  <section id="forum" class="screen">
+    <h2>Форум и обсуждения</h2>
+    <p>Темы, отзывы, жалобы, разборки. Всё честно и прозрачно.</p>
+    <ul>
+      <li><a href="https://t.me/playguzlikcom" target="_blank">Telegram-чат</a> — живое общение</li>
+    </ul>
+    <div class="play-buttons-center" style="margin-top:1rem">
+      <button class="play-btn" onclick="showScreen('banlist')">Бан-лист</button>
+      <button class="play-btn" onclick="showScreen('rating')">Рейтинг игроков</button>
+    </div>
+  </section>
+
+  <!-- ДОКУМЕНТАЦИЯ -->
+  <section id="docs" class="screen">
+    <h2>Документация</h2>
+    <p>Файлы для скачивания: заявки, шаблоны и другое.</p>
+
+    <div class="doc-row">
+      <span class="doc-name">Заявка на размещение клана</span>
+      <a class="play-btn" href="download/clan-application.txt" download>Скачать</a>
+    </div>
+    <div class="doc-row">
+      <span class="doc-name">Другое (пример PDF)</span>
+      <a class="play-btn" href="download/other.pdf" download>Скачать</a>
+    </div>
+
+    <!-- Быстрая проверка «файл не найден» -->
+    <script>
+      // проверяем 404 и красим кнопку серым, если файл не доступен
+      document.querySelectorAll('.doc-row a').forEach(link=>{
+        fetch(link.href,{method:'HEAD'}).then(r=>{
+          if(!r.ok){link.classList.add('disabled');link.style.background='#999';link.textContent='Файл не найден';}
+        }).catch(()=>{link.classList.add('disabled');link.style.background='#999';link.textContent='Файл не найден';});
+      });
+    </script>
+  </section>
+
+  <!-- БАН-ЛИСТ -->
+  <section id="banlist" class="screen">
+    <div class="play-buttons-center" style="margin-bottom:1rem">
+      <button class="play-btn" onclick="showScreen('forum')">← Назад</button>
+    </div>
+    <h2>Бан-лист</h2>
+    <table class="data-table">
+      <thead><tr><th>Ник</th><th>Причина</th><th>Модератор</th><th>Дата</th><th>Статус</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Ник">xxCreeperxx</td><td data-label="Причина" class="ban-reason">Грифинг</td><td data-label="Модератор">_AdminNika</td><td data-label="Дата">24.01.2026</td><td data-label="Статус" style="color:var(--mc-4)">Бан 7 дней</td></tr>
+        <tr><td data-label="Ник">ProGamer99</td><td data-label="Причина" class="ban-reason">Чит X-Ray</td><td data-label="Модератор">_AdminNika</td><td data-label="Дата">23.01.2026</td><td data-label="Статус" style="color:var(--mc-4)">Перманент</td></tr>
+        <tr><td data-label="Ник">KittyGirl</td><td data-label="Причина" class="ban-reason">Токсичность</td><td data-label="Модератор">_ModeratorIvan</td><td data-label="Дата">22.01.2026</td><td data-label="Статус" style="color:var(--mc-6)">Разбанен</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;font-size:.8rem;color:var(--muted)">Обновляется каждый час. Апелляции — в Telegram <a href="https://t.me/playguzlikcom" target="_blank">@guzliksupport</a>.</p>
+  </section>
+
+  <!-- РЕЙТИНГ -->
+  <section id="rating" class="screen">
+    <div class="play-buttons-center" style="margin-bottom:1rem">
+      <button class="play-btn" onclick="showScreen('forum')">← Назад</button>
+    </div>
+    <h2>Рейтинг игроков</h2>
+    <table class="data-table">
+      <thead><tr><th>#</th><th>Ник</th><th>Ранг</th><th>Онлайн (ч)</th><th>Достижения</th></tr></thead>
+      <tbody>
+        <tr><td data-label="#">1</td><td data-label="Ник"><strong>PurpleWizard</strong></td><td data-label="Ранг"><span class="rank-badge prefix-purple">Гузлик Судного Дня</span></td><td data-label="Онлайн (ч)">127</td><td data-label="Достижения">Убил Дракона 12 раз</td></tr>
+        <tr><td data-label="#">2</td><td data-label="Ник"><strong>FireFoxy</strong></td><td data-label="Ранг"><span class="rank-badge prefix-yellow">Пылающий Гузлик</span></td><td data-label="Онлайн (ч)">98</td><td data-label="Достижения">Построил 3 города</td></tr>
+        <tr><td data-label="#">3</td><td data-label="Ник"><strong>StoneMiner</strong></td><td data-label="Ранг"><span class="rank-badge prefix-gold">Обожжённый Гузлик</span></td><td data-label="Онлайн (ч)">89</td><td data-label="Достижения">Достиг 1 000 000 §</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:1rem;font-size:.8rem;color:var(--muted)">Обновляется каждый час. Для попадания в топ — просто играй активно и честно!</p>
+  </section>
+
+  <!-- ГОЛОСОВАНИЕ -->
+  <section id="vote" class="screen">
+    <h2>Голосование за сервер</h2>
+    <p>Каждый день — новое голосование. За голоса — ключи, кейсы, кристаллы.</p>
+    <div class="play-buttons-center">
+      <a class="play-btn" href="https://www.mc-servera.net/102854" target="_blank">mc-servera.net</a>
+      <a class="play-btn" href="https://minecraftrating.ru/server/guzlik/" target="_blank">minecraftrating.ru</a>
+      <a class="play-btn" href="https://minetop.net/server/10510" target="_blank">minetop.net</a>
+      <a class="play-btn" href="https://m2top.ru/server/7020/" target="_blank">m2top.ru</a>
+      <a class="play-btn" href="https://hotmc.ru/minecraft-server-284717" target="_blank">hotmc.ru</a>
+      <a class="play-btn" href="https://herobrine.ru/server/1160" target="_blank">herobrine.ru</a>
+    </div>
+    <p>Голосуй → скриншот → загрузи в Telegram → получи награду!</p>
+  </section>
+
+  <!-- КОНТАКТЫ -->
+  <section id="contacts" class="screen">
+    <h2>Контакты</h2>
+    <ul style="margin-left:1.2rem">
+      <li>Telegram: <a href="https://t.me/playguzlikcom" target="_blank">@guzliksupport</a></li>
+      <li>Discord: <a href="https://discord.gg" target="_blank">пока нету</a></li>
+      <li>Почта: support@guzlik.com</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-controls">
+    <button id="musicToggle" class="ctrl-btn" title="Вкл/выкл музыку">▶</button>
+    <button id="themeToggle" class="ctrl-btn" title="Тёмная/светлая тема">🌙</button>
+  </div>
+  <div>Guzlik Play © 2025-2026 | Сделано с ❤️ для игроков</div>
+</footer>
+
+<audio id="bgMusic" loop preload="metadata">
+  <source src="music/theme.mp3" type="audio/mpeg">
+</audio>
+
+<div id="cherry-container"></div>
+
+<!-- Псевдо-PWA: подсказка "добавь на главный экран" -->
+<div id="add2home">
+  <span id="a2h-text"></span>
+  <button onclick="this.parentElement.style.display='none'">Понятно</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
+<script>
+  const menuBtn = document.getElementById('menuToggle');
+  const dropMenu = document.getElementById('dropMenu');
+  menuBtn.addEventListener('click', () => dropMenu.classList.toggle('show'));
+  dropMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>dropMenu.classList.remove('show')));
+
+  const themeBtn = document.getElementById('themeToggle');
+  let dark = localStorage.getItem('dark')==='true';
+  function applyTheme(){
+    document.body.classList.toggle('dark',dark);
+    themeBtn.textContent = dark ? '☀' : '🌙';
+  }
+  applyTheme();
+  themeBtn.addEventListener('click',()=>{
+    dark=!dark; localStorage.setItem('dark',dark); applyTheme();
+  });
+
+  function showScreen(id){
+    document.querySelectorAll('main .screen').forEach(s=>s.classList.remove('active'));
+    const el = document.getElementById(id);
+    if(el) el.classList.add('active');
+  }
+  function applyHash(){
+    const hash = location.hash.slice(1) || 'home';
+    showScreen(hash);
+  }
+  window.addEventListener('hashchange', applyHash);
+  window.addEventListener('load', applyHash);
+  document.getElementById('logo').addEventListener('click',()=>showScreen('home'));
+
+  function playJava(){
+    window.location='minecraft://?addExternalServer=GZL|play.guzlik.com:25565';
+  }
+  function playBedrock(){
+    window.location='minecraft://?addExternalServer=GZL Bedrock|play.guzlik.com:19132';
+  }
+  function pay(product,amount){
+    const merchantLogin='guzlikshop', invId=Date.now(), signature=btoa(`${merchantLogin}:${amount}:${invId}:password1`);
+    window.open(`https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=${merchantLogin}&OutSum=${amount}&InvoiceID=${invId}&SignatureValue=${signature}&Description=${product}`,'_blank');
+  }
+
+  const API='https://api.mcsrvstat.us/2/play.guzlik.com';
+  async function fetchData(){
+    try{const res=await fetch(API), data=await res.json();
+      document.getElementById('online').textContent=data.players?.online??0;
+    }catch{document.getElementById('online').textContent=0;}
+  }
+  fetchData(); setInterval(fetchData,15000);
+
+  $(document).ready(()=>{
+    $('.gallery-slider:not(.clan-gallery)').slick({infinite:true,speed:500,fade:true,autoplay:true,autoplaySpeed:4000,arrows:false,dots:false});
+    $('.clan-gallery').slick({infinite:true,speed:500,fade:false,autoplay:true,autoplaySpeed:3000,arrows:false,dots:false});
+  });
+
+  (()=>{
+    const container=document.getElementById('cherry-container');
+    if(!container)return;
+    const colors=['#ffb7c5','#ffa1b8','#ffc0cb','#f8a9c1'];
+    function createPetal(){
+      const p=document.createElement('div');
+      p.className='petal';
+      const size=Math.random()*6+4+'px';
+      p.style.width=size;p.style.height=size;
+      p.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+      p.style.left=Math.random()*100+'vw';
+      p.style.top='-20px';
+      container.appendChild(p);
+      const drift=(Math.random()-0.5)*200;
+      const duration=(Math.random()*5+5)*2;
+      const anim=p.animate([
+        {transform:'translate(0,0) rotate(0deg)',opacity:.8},
+        {transform:`translate(${drift}px,100vh) rotate(360deg)`,opacity:.4}
+      ],{duration:duration*1000,easing:'linear'});
+      anim.onfinish=()=>{p.remove();createPetal();};
+    }
+    for(let i=0;i<60;i++)setTimeout(createPetal,Math.random()*8000);
+  })();
+
+  const bgMusic=document.getElementById('bgMusic');
+  const musicBtn=document.getElementById('musicToggle');
+  let musicEnabled=localStorage.getItem('musicEnabled')==='true';
+  bgMusic.volume=0.25;
+  function updateMusicIcon(){
+    musicBtn.textContent=musicEnabled?'❚❚':'▶';
+  }
+  function toggleMusic(){
+    musicEnabled=!musicEnabled; localStorage.setItem('musicEnabled',musicEnabled);
+    updateMusicIcon();
+    if(musicEnabled)bgMusic.play().catch(()=>{});else bgMusic.pause();
+  }
+  updateMusicIcon();
+  musicBtn.addEventListener('click',toggleMusic);
+  if(musicEnabled)bgMusic.play().catch(()=>{});
+
+  /* ---------- проверка файлов документации ---------- */
+  document.querySelectorAll('.doc-row a').forEach(link=>{
+    fetch(link.href,{method:'HEAD'}).then(r=>{
+      if(!r.ok){link.classList.add('disabled');link.style.background='#999';link.textContent='Файл не найден';}
+    }).catch(()=>{link.classList.add('disabled');link.style.background='#999';link.textContent='Файл не найден';});
+  });
+
+  /* ---------- псевдо-PWA подсказка ---------- */
+  (()=>{
+    const ua=navigator.userAgent||'';
+    const isIos=/iPad|iPhone|iPod/.test(ua);
+    const isAndroid=/Android/.test(ua);
+    const isWinDesktop=/Windows NT/.test(ua)&&!/Mobile/.test(ua);
+    const already=localStorage.getItem('a2h-closed');
+    if(already)return;
+
+    let text='';
+    if(isIos)      text='Нажми «Поделиться» ↗ и выбери «На экран «Домой»»';
+    else if(isAndroid) text='Нажми ⋮ в Chrome и выбери «Добавить на главный экран»';
+    else if(isWinDesktop)text='Нажми ⋮ в Edge/Chrome и выбери «Установить это приложение»';
+
+    if(text){
+      document.getElementById('a2h-text').textContent=text;
+      document.getElementById('add2home').style.display='flex';
+      localStorage.setItem('a2h-closed','1');
+    }
+  })();
+</script>
+</body>
+</html>
+

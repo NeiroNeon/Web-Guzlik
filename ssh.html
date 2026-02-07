@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Магазин Guzlik Play — 2026</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <link href="https://fonts.cdnfonts.com/css/minecraft-rus" rel="stylesheet">
+  <style>
+    /* ========== СВЕТЛАЯ ТЕМА (по умолчанию) ========== */
+    :root{
+      --bg:#fef5f7;
+      --spot:#ffd1dc;
+      --card:rgba(255,255,255,.55);
+      --text:#2d2d2d;
+      --muted:#6e6e6e;
+      --accent:#ff85a2;
+      --online:#4caf50;
+      --shadow:0 8px 32px rgba(0,0,0,.08);
+      --radius:16px;
+      --petal:#ffc8d6;
+
+      /* пятна на фоне */
+      --stain1:rgba(255,209,220,.7);
+      --stain2:rgba(255,230,240,.6);
+      --stain3:rgba(255,240,245,.5);
+    }
+
+    /* ========== ТЁМНАЯ ТЕМА ========== */
+    [data-theme="dark"]{
+      --bg:#1a1a1a;
+      --spot:#ff85a222;
+      --card:rgba(30,30,30,.75);
+      --text:#e0e0e0;
+      --muted:#aaa;
+      --accent:#ff85a2;
+      --shadow:0 8px 32px rgba(0,0,0,.5);
+      --petal:#ffb7c588;
+
+      /* более тёмные пятна */
+      --stain1:rgba(255,133,162,.12);
+      --stain2:rgba(255,133,162,.08);
+      --stain3:rgba(255,133,162,.05);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Minecraft Rus',-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh;
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      overflow-x:hidden;
+      background:
+        radial-gradient(circle at 15% 25%, var(--stain1) 0%, transparent 35%),
+        radial-gradient(circle at 85% 75%, var(--stain2) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, var(--stain3) 0%, transparent 25%),
+        linear-gradient(135deg, var(--bg) 0%, var(--spot) 100%) fixed;
+      background-attachment: fixed;
+      transition: background .3s;
+    }
+
+    /* лепестки */
+    #petals{position:fixed;inset:0;pointer-events:none;z-index:1}
+    .petal{position:absolute;width:10px;height:10px;background:var(--petal);border-radius:2px;pointer-events:none;opacity:.6}
+
+    header{position:relative;padding:clamp(2rem,5vw,4rem) clamp(1rem,3vw,3rem);text-align:center;z-index:2}
+    .logo-header{width:clamp(320px,60vw,480px);height:auto;max-height:200px;object-fit:contain;cursor:pointer}
+
+    /* переключатель темы */
+    .theme-toggle{
+      position:absolute;
+      top:2rem;
+      left:2rem;
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.05);
+      border-radius:var(--radius);
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      font-size:1.4rem;
+      cursor:pointer;
+      transition:transform .2s, border-color .3s, box-shadow .3s;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    .theme-toggle:hover{transform:scale(1.1);border-color:var(--accent)}
+    [data-theme="dark"] .theme-toggle{border-color:rgba(255,255,255,.15)}
+
+    /* кнопка «На сайт» */
+    .site-btn{
+      position:absolute;
+      top:2rem;
+      left:calc(2rem + 48px + .5rem); /* 48px ширина toggle + отступ */
+      background:var(--card);
+      border:1px solid rgba(0,0,0,.05);
+      border-radius:var(--radius);
+      width:48px;
+      height:48px;
+      display:grid;
+      place-items:center;
+      font-size:1.4rem;
+      text-decoration:none;
+      color:var(--text);
+      cursor:pointer;
+      transition:transform .2s, border-color .3s, box-shadow .3s;
+      box-shadow:0 2px 8px rgba(0,0,0,.15);
+    }
+    .site-btn:hover{transform:scale(1.1);border-color:var(--accent)}
+    [data-theme="dark"] .site-btn{border-color:rgba(255,255,255,.15)}
+
+    .top-cart{position:absolute;top:2rem;right:2rem;display:flex;align-items:center;gap:.5rem;background:var(--card);border:1px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;transition:border-color .3s,box-shadow .3s}
+    .top-cart:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+    .top-cart img{width:32px;height:32px}
+    .top-cart-count{background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;font-size:.8rem;font-weight:700;display:grid;place-items:center}
+
+    .cat-nav{display:flex;gap:.5rem;padding:0 clamp(1rem,3vw,3rem);overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin-top:1rem}
+    .cat-btn{flex:0 0 auto;scroll-snap-align:start;background:var(--card);border:1px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:.75rem 1.5rem;font-size:clamp(.9rem,2.2vw,1.1rem);font-weight:700;color:var(--text);cursor:pointer;transition:border-color .3s,background .3s}
+    .cat-btn.active{border-color:var(--accent);background:var(--accent);color:#fff}
+
+    .tools{display:flex;gap:1rem;padding:1rem clamp(1rem,3vw,3rem);margin-bottom:70px}
+    .search{flex:1;background:var(--card);border:1px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:.75rem 1rem;font-size:1rem;color:var(--text)}
+    .sort{background:var(--card);border:1px solid rgba(0,0,0,.05);border-radius:var(--radius);padding:.75rem 1rem;font-size:1rem;color:var(--text);cursor:pointer}
+
+    .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(clamp(280px,30vw,320px),1fr));gap:80px;padding:0 clamp(1rem,3vw,3rem) clamp(2rem,6vw,4rem);position:relative;z-index:3}
+
+    /* стеклянная карточка */
+    .item-card{
+      position:relative;
+      background:var(--card);
+      backdrop-filter:blur(12px) saturate(180%);
+      -webkit-backdrop-filter:blur(12px) saturate(180%);
+      border:1px solid rgba(255,255,255,.4);
+      border-radius:var(--radius);
+      padding:0 0 clamp(1.2rem,3vw,2rem);
+      display:flex;
+      flex-direction:column;
+      transition:transform .3s,box-shadow .3s,border-color .3s;
+      will-change:transform;
+      box-shadow:var(--shadow);
+    }
+    .item-card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 20px 50px rgba(0,0,0,.12)}
+
+    .img-box{position:relative;width:100%;height:0;padding-bottom:50%;overflow:visible}
+    .img-box img{position:absolute;top:-60px;left:0;width:100%;height:calc(100% + 60px);object-fit:cover;border-radius:var(--radius) var(--radius) 0 0;pointer-events:none}
+    .card-body{padding:clamp(1rem,3vw,1.5rem);display:flex;flex-direction:column;gap:1rem}
+    .item-name{font-size:clamp(1.1rem,3vw,1.5rem);text-align:center;letter-spacing:-.5px}
+    .item-rating{font-size:1.2rem;color:var(--accent);text-align:center}
+    .item-desc{font-size:clamp(.85rem,2vw,1rem);color:var(--muted);flex:1;text-align:center}
+    .item-price{font-size:clamp(1.4rem,4vw,2rem);font-weight:700;text-align:center;background:linear-gradient(90deg,var(--accent),#ffadc7);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .item-footer{display:flex;align-items:center;gap:.5rem}
+    .qty-btn{width:40px;height:40px;border:none;border-radius:50%;background:rgba(0,0,0,.03);color:var(--text);font-size:1.4rem;cursor:pointer;transition:background .3s}
+    .qty-btn:hover{background:var(--accent);color:#fff}
+    .add-btn{flex:1;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:clamp(.6rem,2vw,.9rem);font-size:clamp(.9rem,2.2vw,1.1rem);color:var(--text);cursor:pointer;transition:background .3s,color .3s}
+    .add-btn:hover{background:var(--accent);color:#fff}
+
+    footer{text-align:center;padding:clamp(1.5rem,4vw,3rem) 1rem;font-size:clamp(.75rem,2vw,.9rem);color:var(--muted);line-height:1.5}
+    .footer-text{margin-bottom:.5rem}
+    .footer-links{font-size:clamp(.7rem,1.8vw,.85rem)}
+    .footer-links a{color:var(--accent);text-decoration:none;margin:0 .5rem}
+    .footer-links a:hover{text-decoration:underline}
+
+    /* тёмные модальные окна как в исходнике */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:100}
+    .modal-box{background:var(--card);border-radius:var(--radius);padding:clamp(1.5rem,4vw,2.5rem);width:clamp(300px,90vw,600px);max-height:80vh;overflow-y:auto;display:flex;flex-direction:column;gap:1rem}
+    .modal-header{display:flex;justify-content:space-between;align-items:center}
+    .modal-title{font-size:clamp(1.3rem,3.5vw,2rem)}
+    .modal-close{background:none;border:none;font-size:2rem;color:var(--muted);cursor:pointer}
+
+    .cart-item{display:flex;gap:1rem;align-items:center;margin-bottom:1rem}
+    .cart-item img{width:64px;height:64px;object-fit:cover;border-radius:var(--radius)}
+    .cart-item-content{flex:1;display:flex;flex-direction:column;gap:.25rem}
+    .cart-item-name{font-weight:700;font-size:1rem}
+    .cart-item-desc{font-size:.8rem;color:var(--muted)}
+    .cart-item-controls{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+    .cart-item-controls button{width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.03);color:var(--text);cursor:pointer}
+    .cart-item-controls button:hover{background:var(--accent);color:#fff}
+    .cart-item-price{font-weight:700;font-size:1.1rem;margin-top:.5rem}
+    .clear-btn,.checkout-btn{padding:.75rem 1.5rem;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:background .3s,color .3s}
+    .clear-btn{background:#e53935;color:#fff}
+    .checkout-btn{background:var(--accent);color:#fff}
+
+    .legal-text{font-size:clamp(.9rem,2.2vw,1.05rem);line-height:1.7;letter-spacing:.4px;color:var(--text);white-space:pre-line;padding:0 .2rem 1rem}
+    .legal-text p{margin:.6rem 0}
+    .legal-close-btn{align-self:center;margin-top:auto;padding:.6rem 1.6rem;background:var(--accent);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;transition:background .3s}
+    .legal-close-btn:hover{background:#ffadc7}
+  </style>
+</head>
+<body data-theme="light">
+
+<!-- лепестки -->
+<div id="petals"></div>
+
+<header>
+  <button class="theme-toggle" id="themeToggle" title="Сменить тему">🌙</button>
+  <a href="40.html" class="site-btn" title="На сайт">🌐</a>
+  <img src="shop/logo.webp" alt="Guzlik Play" class="logo-header">
+  <div class="top-cart" onclick="openModal('cart')">
+    <img src="shop/icoshop.webp" alt="🛒">
+    <span class="top-cart-count" id="cartCount">0</span>
+  </div>
+  <p>Здесь ты выбираешь не статус, а форму своего присутствия в мире Guzlik Play.</p>
+</header>
+
+<nav class="cat-nav">
+  <button class="cat-btn active" data-cat="all">Все товары</button>
+  <button class="cat-btn" data-cat="priv">Привилегии</button>
+  <button class="cat-btn" data-cat="currency">Валюта</button>
+  <button class="cat-btn" data-cat="cosmetic">Косметика</button>
+  <button class="cat-btn" data-cat="packs">Наборы</button>
+</nav>
+
+<div class="tools">
+  <input type="search" class="search" placeholder="🔍 Поиск товара…">
+  <select class="sort">
+    <option value="price-asc">Цена ↑</option>
+    <option value="price-desc">Цена ↓</option>
+    <option value="name">Название</option>
+  </select>
+</div>
+
+<main class="shop-grid" id="shopGrid"></main>
+
+<footer>
+  <div class="footer-text">
+    Guzlik Play — независимый игровой проект. Все платежи являются добровольными пожертвованиями и не дают игровых преимуществ.
+  </div>
+  <div class="footer-text">
+    Проект не связан с Mojang Studios или Microsoft.
+  </div>
+  <div class="footer-links">
+    <a href="#" onclick="openModal('legal'); return false;">Юридическая информация</a> •
+    <a href="#" onclick="openModal('returns'); return false;">Политика возвратов</a> •
+    <a href="#" onclick="openModal('contacts'); return false;">Контакты</a>
+  </div>
+</footer>
+
+<!-- 4 модальных окна -->
+<div id="cartModal" class="modal" onclick="if(event.target===this)closeModal('cart')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Корзина</h2>
+      <button class="modal-close" onclick="closeModal('cart')">×</button>
+    </div>
+    <div id="cartList"></div>
+    <div class="modal-footer" style="display:flex;gap:1rem">
+      <button class="clear-btn" onclick="clearCart()">Очистить</button>
+      <button class="checkout-btn" onclick="checkout()">Оплатить</button>
+    </div>
+  </div>
+</div>
+
+<div id="legalModal" class="modal" onclick="if(event.target===this)closeModal('legal')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Юридическая информация</h2>
+      <button class="modal-close" onclick="closeModal('legal')">×</button>
+    </div>
+    <div class="legal-text">
+      <p>Все платежи на сайте являются добровольными пожертвованиями на поддержку и развитие проекта Guzlik Play.</p>
+      <p>Пожертвования не предоставляют игровых преимуществ и не влияют на игровой баланс.</p>
+      <p>Все предоставляемые привилегии и возможности носят цифровой, визуальный или функциональный характер и не имеют материальной ценности вне проекта.</p>
+      <p>Пожертвования, как правило, не подлежат возврату. Возврат возможен только в случае подтверждённой технической ошибки.</p>
+      <p>Проект Guzlik Play является независимым и не связан с Mojang Studios или Microsoft Corporation. Все права на Minecraft принадлежат их правообладателям.</p>
+      <p>Лицам младше 18 лет рекомендуется совершать пожертвования с разрешения родителей или законных представителей.</p>
+      <p>Контакты службы поддержки указаны на сайте.</p>
+    </div>
+    <button class="legal-close-btn" onclick="closeModal('legal')">Закрыть</button>
+  </div>
+</div>
+
+<div id="returnsModal" class="modal" onclick="if(event.target===this)closeModal('returns')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Политика возвратов</h2>
+      <button class="modal-close" onclick="closeModal('returns')">×</button>
+    </div>
+    <div class="legal-text">
+      <p>Все платежи на сайте Guzlik Play являются добровольными пожертвованиями.</p>
+      <p>Пожертвования, как правило, не подлежат возврату после активации цифровых привилегий или возможностей.</p>
+      <p>Возврат средств возможен исключительно в случае подтверждённой технической ошибки со стороны проекта Guzlik Play.</p>
+      <p>Каждое обращение рассматривается индивидуально службой поддержки проекта.</p>
+    </div>
+    <button class="legal-close-btn" onclick="closeModal('returns')">Закрыть</button>
+  </div>
+</div>
+
+<div id="contactsModal" class="modal" onclick="if(event.target===this)closeModal('contacts')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2 class="modal-title">Контакты</h2>
+      <button class="modal-close" onclick="closeModal('contacts')">×</button>
+    </div>
+    <div class="legal-text">
+      <p>По всем вопросам, связанным с проектом Guzlik Play, пожертвованиями и техническими проблемами, вы можете обратиться в службу поддержки.</p>
+      <p>Доступные способы связи:</p>
+      <p>— Discord-сервер проекта<br>— Email поддержки, указанный на сайте</p>
+      <p>Срок ответа может зависеть от загруженности и не гарантирует моментального решения.</p>
+    </div>
+    <button class="legal-close-btn" onclick="closeModal('contacts')">Закрыть</button>
+  </div>
+</div>
+
+<script>
+  const catalog={
+    priv:[
+      {id:'img1',name:'Тлеющий Гузлик',desc:'Исходный Облик. Спокойное взаимодействие без ограничений.',price:0,icon:'⬜',rating:5},
+      {id:'img2',name:'Обожжённый Гузлик',desc:'Стабильность и порядок. Ускоренные процессы.',price:350,icon:'🟠',rating:4},
+      {id:'img3',name:'Пылающий Гузлик',desc:'Яркость и самовыражение. Уникальные эффекты.',price:450,icon:'🔴',rating:5},
+      {id:'img4',name:'Адский Гузлик',desc:'Погружение в механики. Расширенные настройки.',price:600,icon:'🩷',rating:3},
+      {id:'img5',name:'Гузлик Судного Дня',desc:'Соучастие в развитии. Доступ к тестам и фидбек.',price:1000,icon:'🟣',rating:5}
+    ],
+    currency:[
+      {id:'img6',name:'1 000 монет',desc:'Базовая игровая валюта.',price:50,icon:'🪙',rating:4},
+      {id:'img7',name:'10 000 монет',desc:'Больше золота — больше возможностей.',price:450,icon:'🪙',rating:5},
+      {id:'img8',name:'100 кристаллов',desc:'Премиум-валюта.',price:200,icon:'💎',rating:4}
+    ],
+    cosmetic:[
+      {id:'img9',name:'Огонь за спиной',desc:'Анимированный след.',price:200,icon:'🔥',rating:4},
+      {id:'img10',name:'Питомец Феникс',desc:'Летает рядом и подбирает дроп.',price:500,icon:'🐦‍🔥',rating:5},
+      {id:'img11',name:'Шляпа Нуба',desc:'Классика жанра.',price:50,icon:'🧢',rating:3}
+    ],
+    packs:[
+      {id:'img12',name:'Стартовый набор',desc:'Инструменты + еда + 500 монет.',price:150,icon:'🎒',rating:4},
+      {id:'img13',name:'Мега-набор',desc:'Всё сразу: все привилегии на месяц.',price:1700,icon:'🎁',rating:5}
+    ]
+  };
+
+  let cart=JSON.parse(localStorage.getItem('gzCart')||'[]');
+  let currentCat='all';
+
+  const grid=document.getElementById('shopGrid');
+  const searchInp=document.querySelector('.search');
+  const sortSel=document.querySelector('.sort');
+  const catBtns=document.querySelectorAll('.cat-btn');
+  const cartCount=document.getElementById('cartCount');
+  const cartModal=document.getElementById('cartModal');
+  const cartList=document.getElementById('cartList');
+  const themeToggle=document.getElementById('themeToggle');
+
+  /* ===== переключатель темы ===== */
+  function initTheme(){
+    const saved=localStorage.getItem('theme');
+    if(saved==='dark') setDark(); else setLight();
+  }
+  function setLight(){
+    document.body.setAttribute('data-theme','light');
+    themeToggle.textContent='🌙';
+    localStorage.setItem('theme','light');
+  }
+  function setDark(){
+    document.body.setAttribute('data-theme','dark');
+    themeToggle.textContent='☀';
+    localStorage.setItem('theme','dark');
+  }
+  themeToggle.addEventListener('click',()=>{
+    document.body.getAttribute('data-theme')==='dark' ? setLight() : setDark();
+  });
+  initTheme();
+
+  function stars(n){return '★'.repeat(n)+'☆'.repeat(5-n);}
+  function getItems(){
+    if(currentCat==='all')return Object.values(catalog).flat();
+    return catalog[currentCat]||[];
+  }
+
+  function render(){
+    const q=searchInp.value.trim().toLowerCase();
+    let list=getItems();
+    if(q)list=list.filter(it=>it.name.toLowerCase().includes(q));
+    const sort=sortSel.value;
+    if(sort==='price-asc')list.sort((a,b)=>a.price-b.price);
+    if(sort==='price-desc')list.sort((a,b)=>b.price-a.price);
+    if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
+
+    grid.innerHTML=list.map(it=>{
+      const inCart=cart.find(c=>c.id===it.id);
+      const qty=inCart?inCart.qty:0;
+      return`
+        <div class="item-card">
+          <div class="img-box">
+            <img src="shop/${it.id}.webp" alt="${it.name}" onerror="this.src='shop/icoshop.webp'">
+          </div>
+          <div class="card-body">
+            <h3 class="item-name">${it.name}</h3>
+            <div class="item-rating">${stars(it.rating)}</div>
+            <p class="item-desc">${it.desc}</p>
+            <div class="item-price" id="price-${it.id}">${it.price*(qty||1)} ₽</div>
+            <div class="item-footer">
+              <button class="qty-btn" onclick="changeQty('${it.id}',-1,${it.price})">−</button>
+              <span id="qty-${it.id}">${qty}</span>
+              <button class="qty-btn" onclick="changeQty('${it.id}',1,${it.price})">+</button>
+              <button class="add-btn" onclick="addCart('${it.id}','${it.name}',${it.price})">Добавить</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    updateCount();
+    renderCart();
+  }
+
+  function addCart(id,name,price){
+    const idx=cart.findIndex(it=>it.id===id);
+    if(idx===-1)cart.push({id,name,price,qty:1});
+    else cart[idx].qty++;
+    localStorage.setItem('gzCart',JSON.stringify(cart));
+    updateCount();
+    renderCart();
+    render();
+  }
+  function changeQty(id,delta,price){
+    const idx=cart.findIndex(it=>it.id===id);
+    if(idx===-1&&delta>0)cart.push({id,name:getItems().find(it=>it.id===id).name,price,qty:1});
+    else if(idx!==-1){
+      cart[idx].qty+=delta;
+      if(cart[idx].qty<=0)cart.splice(idx,1);
+    }
+    localStorage.setItem('gzCart',JSON.stringify(cart));
+    updateCount();
+    renderCart();
+    const item=getItems().find(it=>it.id===id);
+    if(!item)return;
+    const newTotal=item.price*Math.max((cart.find(c=>c.id===id)?.qty||0),1);
+    const priceEl=document.getElementById('price-'+id);
+    const qtyEl=document.getElementById('qty-'+id);
+    if(priceEl)priceEl.textContent=newTotal+' ₽';
+    if(qtyEl)qtyEl.textContent=Math.max((cart.find(c=>c.id===id)?.qty||0),0);
+  }
+  function updateCount(){
+    cartCount.textContent=cart.reduce((s,it)=>s+it.qty,0);
+  }
+  function renderCart(){
+    if(!cartList)return;
+    if(cart.length===0){
+      cartList.innerHTML='<p style="text-align:center;color:var(--muted)">Корзина пуста</p>';
+      return;
+    }
+    cartList.innerHTML=cart.map(it=>{
+      const total=it.price*it.qty;
+      return`
+        <div class="cart-item">
+          <img src="shop/${it.id}.webp" alt="" onerror="this.src='shop/icoshop.webp'">
+          <div class="cart-item-content">
+            <div class="cart-item-name">${it.name}</div>
+            <div class="cart-item-rating">${stars(getItems().find(i=>i.id===it.id)?.rating||0)}</div>
+            <div class="cart-item-desc">${getItems().find(i=>i.id===it.id)?.desc||''}</div>
+            <div class="cart-item-controls">
+              <button onclick="changeQty('${it.id}',-1,${it.price})">−</button>
+              <span>${it.qty}</span>
+              <button onclick="changeQty('${it.id}',1,${it.price})">+</button>
+            </div>
+            <div class="cart-item-price">${total} ₽</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  function openModal(name){
+    document.getElementById(name+'Modal').style.display='flex';
+  }
+  function closeModal(name){
+    document.getElementById(name+'Modal').style.display='none';
+  }
+  function clearCart(){
+    cart=[];
+    localStorage.setItem('gzCart',JSON.stringify(cart));
+    updateCount();
+    renderCart();
+    render();
+  }
+  function checkout(){
+    const total=cart.reduce((s,it)=>s+it.price*it.qty,0);
+    if(total===0){alert('Корзина пуста');return;}
+    pay('Корзина Guzlik Play',total);
+  }
+  function pay(desc,amount){
+    const merchantLogin='guzlikshop',invId=Date.now(),signature=btoa(`${merchantLogin}:${amount}:${invId}:password1`);
+    window.open(`https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=${merchantLogin}&OutSum=${amount}&InvoiceID=${invId}&SignatureValue=${signature}&Description=${desc}`,'_blank');
+  }
+
+  catBtns.forEach(btn=>{
+    btn.onclick=()=>{
+      catBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat=btn.dataset.cat;
+      render();
+    };
+  });
+  searchInp.oninput=render;
+  sortSel.onchange=render;
+
+  /* пастельные лепестки реже */
+  (()=>{
+    const container=document.getElementById('petals');
+    if(!container)return;
+    const colors=['#ffd1dc','#ffe4e1','#fff0f5','#ffc8d6'];
+    function createPetal(){
+      const p=document.createElement('div');
+      p.className='petal';
+      const size=Math.random()*5+5+'px';
+      p.style.width=size;p.style.height=size;
+      p.style.backgroundColor=colors[Math.floor(Math.random()*colors.length)];
+      p.style.left=Math.random()*100+'vw';
+      p.style.top='-20px';
+      container.appendChild(p);
+      const drift=(Math.random()-0.5)*150;
+      const duration=(Math.random()*6+8)*1000;
+      const anim=p.animate([
+        {transform:'translate(0,0) rotate(0deg)',opacity:.6},
+        {transform:`translate(${drift}px,100vh) rotate(360deg)`,opacity:.2}
+      ],{duration,easing:'linear'});
+      anim.onfinish=()=>{p.remove();createPetal();};
+    }
+    for(let i=0;i<40;i++)setTimeout(createPetal,Math.random()*10000);
+  })();
+
+  render();
+</script>
+</body>
+</html>
+
